@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yamini Singh · QA Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root {
+  --bg:#07090f; --bg2:#0d1018; --bg3:#111520; --bg4:#181d2a;
+  --acc:#00d9a6; --acc2:#00b389; --accdim:rgba(0,217,166,.12);
+  --blue:#60a5fa; --amber:#fbbf24; --rose:#fb7185; --violet:#a78bfa;
+  --text:#e2e8f4; --sub:#94a3b8; --mute:#475569;
+  --bdr:rgba(255,255,255,.07); --bdr2:rgba(0,217,166,.25);
+  --r:10px; --rl:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden}
+
+/* ── CANVAS: sits at back, never touches content ── */
+#qa-bg{
+  position:fixed;inset:0;
+  z-index:0;          /* lowest layer */
+  pointer-events:none;
+  opacity:.6;
+}
+
+/* ── ALL PAGE CONTENT: single wrapper above canvas ── */
+#page{
+  position:relative;
+  z-index:10;         /* always on top of canvas */
+}
+
+/* ── CURSOR ── */
+.c-outer{position:fixed;z-index:9999;width:34px;height:34px;border:1.5px solid rgba(0,217,166,.45);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%)}
+.c-inner{position:fixed;z-index:9999;width:5px;height:5px;background:var(--acc);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);box-shadow:0 0 7px var(--acc)}
+
+/* ── NAV ── */
+.nav{padding:0 3rem;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid transparent;transition:all .4s;position:sticky;top:0;z-index:200;background:transparent}
+.nav.stuck{background:rgba(7,9,15,.92);backdrop-filter:blur(20px);border-color:var(--bdr)}
+.nav-id{display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);letter-spacing:.1em}
+.live{width:6px;height:6px;background:var(--acc);border-radius:50%;box-shadow:0 0 6px var(--acc);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.nav-links{display:flex;gap:2rem}
+.nav-links a{font-family:'DM Mono',monospace;font-size:11px;color:var(--mute);text-decoration:none;letter-spacing:.08em;transition:color .2s}
+.nav-links a:hover{color:var(--acc)}
+.nav-hire{font-family:'DM Mono',monospace;font-size:11px;background:var(--acc);color:#07090f;padding:7px 18px;border-radius:var(--r);text-decoration:none;font-weight:700;letter-spacing:.07em;transition:all .2s}
+.nav-hire:hover{background:var(--acc2);transform:translateY(-1px)}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 420px;align-items:center;gap:4rem;padding:5rem 3rem 3rem;max-width:1200px;margin:0 auto}
+.hero-tag{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);letter-spacing:.18em;text-transform:uppercase;margin-bottom:1.4rem;display:flex;align-items:center;gap:10px}
+.hero-tag::before{content:'';width:28px;height:1px;background:var(--acc)}
+.hero h1{font-size:clamp(2.6rem,4.2vw,3.8rem);font-weight:800;line-height:1.08;letter-spacing:-.03em;margin-bottom:.6rem}
+.hero h1 .acc{color:var(--acc)}
+.hero-role{display:flex;align-items:center;gap:10px;margin-bottom:1.8rem}
+.role-txt{font-family:'DM Mono',monospace;font-size:12px;color:var(--sub);letter-spacing:.12em;text-transform:uppercase}
+.role-sep{width:1px;height:14px;background:var(--mute)}
+.exp-pill{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);background:var(--accdim);border:1px solid var(--bdr2);padding:3px 12px;border-radius:20px;letter-spacing:.06em}
+.hero-desc{font-size:15px;color:var(--sub);font-weight:300;line-height:1.85;max-width:460px;margin-bottom:2.2rem}
+.hero-desc b{color:var(--text);font-weight:500}
+.hero-btns{display:flex;gap:10px}
+.btn-solid{background:var(--acc);color:#07090f;padding:11px 26px;border-radius:var(--r);font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.08em;text-decoration:none;transition:all .25s;display:inline-block}
+.btn-solid:hover{background:var(--acc2);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,217,166,.2)}
+.btn-ghost{background:transparent;color:var(--acc);padding:11px 26px;border-radius:var(--r);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-decoration:none;border:1px solid var(--bdr2);transition:all .25s;display:inline-block}
+.btn-ghost:hover{background:var(--accdim);transform:translateY(-2px)}
+
+/* ── SNAP CARD ── */
+.snap-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);overflow:hidden;position:relative}
+.snap-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--acc),var(--blue),var(--violet))}
+.snap-head{padding:1rem 1.5rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.snap-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--mute);letter-spacing:.14em}
+.snap-status{font-family:'DM Mono',monospace;font-size:10px;color:var(--acc);display:flex;align-items:center;gap:5px}
+.snap-status::before{content:'';width:5px;height:5px;background:var(--acc);border-radius:50%;box-shadow:0 0 5px var(--acc)}
+.snap-skills{padding:1.2rem 1.5rem;border-bottom:1px solid var(--bdr)}
+.snap-row{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.snap-row:last-child{margin-bottom:0}
+.snap-name{font-size:12px;color:var(--sub);width:155px;flex-shrink:0}
+.snap-track{flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.snap-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--acc2),var(--acc));width:0;transition:width 1.4s cubic-bezier(.16,1,.3,1)}
+.snap-pct{font-family:'DM Mono',monospace;font-size:10px;color:var(--acc);width:28px;text-align:right}
+.snap-chips{padding:1.2rem 1.5rem;border-bottom:1px solid var(--bdr)}
+.snap-chips-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--mute);letter-spacing:.14em;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:'DM Mono',monospace;font-size:10px;padding:3px 10px;border-radius:4px;border:1px solid var(--bdr);color:var(--sub);background:rgba(255,255,255,.03)}
+.chip.a{color:var(--acc);background:rgba(0,217,166,.07);border-color:rgba(0,217,166,.2)}
+.snap-stats{display:grid;grid-template-columns:repeat(3,1fr)}
+.snap-stat{padding:1rem .8rem;text-align:center;border-right:1px solid var(--bdr)}
+.snap-stat:last-child{border-right:none}
+.s-val{font-size:1.7rem;font-weight:800;color:var(--acc);line-height:1;letter-spacing:-.02em}
+.s-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--mute);letter-spacing:.1em;margin-top:3px}
+
+/* ── SECTIONS ── */
+.sec{max-width:1100px;margin:0 auto;padding:6rem 3rem}
+.sec-hd{display:flex;align-items:center;gap:14px;margin-bottom:3rem}
+.sec-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--acc);background:var(--accdim);border:1px solid var(--bdr2);padding:3px 9px;border-radius:4px;letter-spacing:.12em}
+.sec-title{font-size:1.75rem;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+.sec-rule{flex:1;height:1px;background:linear-gradient(to right,var(--bdr2),transparent)}
+
+/* ── REVEAL ── */
+.gr{opacity:0;transform:translateY(24px)}
+
+/* ── SKILLS GRID ── */
+.skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sk{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);padding:1.8rem;position:relative;overflow:hidden;transition:transform .3s,border-color .3s,box-shadow .3s}
+.sk-bar{position:absolute;top:0;left:0;right:0;height:2px;background:var(--c,var(--acc));transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.sk:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.14);box-shadow:0 16px 40px rgba(0,0,0,.3)}
+.sk:hover .sk-bar{transform:scaleX(1)}
+.sk-ico{font-size:24px;margin-bottom:1rem}
+.sk-name{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:.45rem}
+.sk-desc{font-size:13px;color:var(--sub);line-height:1.75;margin-bottom:1rem}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{font-family:'DM Mono',monospace;font-size:10px;background:rgba(255,255,255,.04);color:var(--mute);padding:3px 9px;border-radius:4px;border:1px solid rgba(255,255,255,.06)}
+.tag.hi{background:rgba(0,217,166,.08);color:var(--acc);border-color:rgba(0,217,166,.2)}
+
+/* ── PROJECTS ── */
+.proj-list{display:flex;flex-direction:column;gap:14px}
+.proj{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);padding:2rem 2rem 2rem 2.4rem;position:relative;overflow:hidden;transition:border-color .3s,background .3s;display:flex;gap:2rem;align-items:flex-start}
+.proj::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c,var(--acc));transform:scaleY(0);transform-origin:top;transition:transform .4s ease;border-radius:0 2px 2px 0}
+.proj:hover{border-color:rgba(255,255,255,.13);background:rgba(255,255,255,.015)}
+.proj:hover::before{transform:scaleY(1)}
+.proj-body{flex:1;min-width:0}
+.pbadges{display:flex;gap:7px;margin-bottom:.7rem;flex-wrap:wrap}
+.pbadge{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;padding:3px 11px;border-radius:20px;letter-spacing:.06em}
+.pa{background:rgba(0,217,166,.1);color:var(--acc);border:1px solid rgba(0,217,166,.22)}
+.pb{background:rgba(96,165,250,.1);color:var(--blue);border:1px solid rgba(96,165,250,.22)}
+.pc{background:rgba(251,191,36,.1);color:var(--amber);border:1px solid rgba(251,191,36,.22)}
+.pd{background:rgba(167,139,250,.1);color:var(--violet);border:1px solid rgba(167,139,250,.22)}
+.pe{background:rgba(251,113,133,.1);color:var(--rose);border:1px solid rgba(251,113,133,.22)}
+.proj-title{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:.35rem;letter-spacing:-.01em;line-height:1.3}
+.proj-co{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);letter-spacing:.05em;margin-bottom:.7rem}
+.proj-co a{color:var(--acc);text-decoration:none;border-bottom:1px dashed rgba(0,217,166,.35)}
+.proj-co a:hover{border-color:var(--acc)}
+.proj-desc{font-size:13.5px;color:var(--sub);line-height:1.78;margin-bottom:.9rem}
+.proj-tags{display:flex;flex-wrap:wrap;gap:5px}
+.ptag{font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:4px;background:rgba(255,255,255,.04);color:var(--mute);border:1px solid rgba(255,255,255,.07)}
+.ptag.hi{background:rgba(0,217,166,.08);color:var(--acc);border-color:rgba(0,217,166,.2)}
+.proj-stat{flex-shrink:0;width:110px;text-align:right;padding-top:.4rem}
+.stat-num{font-size:2.4rem;font-weight:800;color:var(--acc);line-height:1;letter-spacing:-.02em;white-space:nowrap}
+.stat-desc{font-family:'DM Mono',monospace;font-size:10px;color:var(--sub);letter-spacing:.07em;line-height:1.5;margin-top:5px}
+
+/* ── TIMELINE ── */
+.tl{position:relative;padding-left:32px}
+.tl::before{content:'';position:absolute;left:8px;top:10px;bottom:0;width:1px;background:linear-gradient(to bottom,var(--acc),rgba(0,217,166,.04))}
+.tl-item{position:relative;margin-bottom:2.8rem}
+.tl-dot{position:absolute;left:-28px;top:5px;width:13px;height:13px;border-radius:50%;border:2px solid var(--mute);background:var(--bg);transition:all .3s}
+.tl-item:first-child .tl-dot{border-color:var(--acc);background:var(--acc);box-shadow:0 0 12px rgba(0,217,166,.5)}
+.tl-item:hover .tl-dot{border-color:var(--acc)}
+.tl-meta{display:flex;gap:8px;align-items:center;margin-bottom:4px;flex-wrap:wrap}
+.tl-date{font-family:'DM Mono',monospace;font-size:10px;color:var(--acc);letter-spacing:.1em}
+.tl-ten{font-family:'DM Mono',monospace;font-size:10px;color:var(--mute);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);padding:1px 8px;border-radius:3px}
+.tl-role{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:.3rem}
+.tl-co{font-size:13px;color:var(--sub);display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:.8rem}
+.tl-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--mute);background:var(--bg3);border:1px solid var(--bdr);padding:1px 7px;border-radius:3px}
+.tl-pts{list-style:none;display:flex;flex-direction:column;gap:6px}
+.tl-pts li{font-size:13.5px;color:var(--sub);display:flex;gap:10px;line-height:1.7}
+.tl-pts li::before{content:'▹';color:var(--acc);flex-shrink:0;font-size:11px;margin-top:2px}
+
+/* ── ANDROID ── */
+.apps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.app{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);padding:1.5rem;transition:all .3s;position:relative;overflow:hidden}
+.app::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--acc),transparent);opacity:0;transition:opacity .3s}
+.app:hover{border-color:rgba(255,255,255,.13);transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.app:hover::after{opacity:1}
+.app-ico{font-size:26px;margin-bottom:.8rem}
+.app-name{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:.4rem}
+.app-desc{font-size:12.5px;color:var(--sub);line-height:1.7;margin-bottom:.8rem}
+.app-link{font-family:'DM Mono',monospace;font-size:10px;color:var(--acc);text-decoration:none;letter-spacing:.06em;border-bottom:1px dashed rgba(0,217,166,.35);padding-bottom:1px;transition:border-color .2s}
+.app-link:hover{border-color:var(--acc)}
+
+/* ── CERTS + TOOLS ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.cert-list{display:flex;flex-direction:column;gap:9px}
+.cert{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:1rem 1.3rem;display:flex;align-items:center;gap:12px;transition:all .3s}
+.cert:hover{border-color:rgba(255,255,255,.13);transform:translateX(4px)}
+.cert-ico{width:38px;height:38px;border-radius:9px;background:var(--accdim);border:1px solid var(--bdr2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.cert-name{font-size:13.5px;font-weight:600;color:var(--text)}
+.cert-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--mute);margin-top:2px}
+.tools-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--mute);letter-spacing:.14em;margin-bottom:14px}
+.tools-wrap{display:flex;flex-wrap:wrap;gap:7px}
+.tool{font-family:'DM Mono',monospace;font-size:11px;background:rgba(255,255,255,.03);color:var(--sub);padding:5px 13px;border-radius:6px;border:1px solid rgba(255,255,255,.07);letter-spacing:.04em;transition:all .2s}
+.tool:hover{background:var(--accdim);border-color:var(--bdr2);color:var(--acc)}
+
+/* ── CONTACT ── */
+.contact-sec{padding:7rem 3rem;max-width:1100px;margin:0 auto}
+.contact-box{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);padding:4rem 3rem;text-align:center;position:relative;overflow:hidden}
+.contact-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--acc),var(--blue),var(--violet),var(--acc));background-size:300%;animation:shimmer 4s linear infinite}
+@keyframes shimmer{0%{background-position:0%}100%{background-position:300%}}
+.contact-box h2{font-size:clamp(2rem,3.5vw,3rem);font-weight:800;letter-spacing:-.03em;color:var(--text);margin-bottom:.7rem}
+.contact-box h2 em{font-style:normal;color:var(--acc)}
+.contact-box p{font-size:14px;color:var(--sub);font-weight:300;margin-bottom:2.5rem}
+.contact-links{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.c-link{font-family:'DM Mono',monospace;font-size:11px;color:var(--sub);padding:11px 20px;border:1px solid var(--bdr);border-radius:var(--r);text-decoration:none;letter-spacing:.05em;display:inline-flex;align-items:center;gap:7px;transition:all .25s}
+.c-link:hover{border-color:var(--acc);color:var(--acc);background:var(--accdim)}
+
+.footer{text-align:center;padding:2rem 3rem;font-family:'DM Mono',monospace;font-size:10px;color:var(--mute);letter-spacing:.1em;border-top:1px solid var(--bdr)}
+
+@media(max-width:960px){
+  .hero{grid-template-columns:1fr;padding:6rem 1.5rem 3rem}
+  .snap-card{display:none}
+  .skills-grid,.two-col,.apps-grid{grid-template-columns:1fr}
+  .sec{padding:4rem 1.5rem}
+  .nav{padding:0 1.5rem}
+  .nav-links{display:none}
+  .proj{flex-direction:column}
+  .proj-stat{text-align:left;width:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- QA canvas background — fixed, behind everything -->
+<canvas id="qa-bg"></canvas>
+
+<!-- ALL CONTENT WRAPPED IN #page — always on top -->
+<div id="page">
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="nav-id"><span class="live"></span>YAMINI SINGH · QA ENGINEER</div>
+  <div class="nav-links">
+    <a href="#projects">Projects</a>
+    <a href="#experience">Experience</a>
+    <a href="#android">Android</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <a class="nav-hire" href="mailto:engineeryaminisingh@gmail.com">HIRE ME</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div>
+    <div class="hero-tag" id="htag">QA Engineer · Gurugram, India</div>
+    <h1 id="hname">Yamini<br><span class="acc">Singh</span></h1>
+    <div class="hero-role" id="hrole">
+      <span class="role-txt">QA Engineer</span>
+      <span class="role-sep"></span>
+      <span class="exp-pill">7+ yrs IT · 3+ yrs QA</span>
+    </div>
+    <p class="hero-desc" id="hdesc">
+      I validate <b>AI-powered products</b> — clinical assistants, voice AI, and SaaS platforms — before real users ever touch them.<br><br>
+      Specialised in <b>Playwright automation</b>, <b>FireFlink</b>, <b>Postman API testing</b>, and leading QA teams end-to-end.
+    </p>
+    <div class="hero-btns" id="hbtns">
+      <a class="btn-solid" href="#projects">View Projects</a>
+      <a class="btn-ghost" href="#contact">Get in Touch</a>
+    </div>
+  </div>
+
+  <div class="snap-card" id="snapCard">
+    <div class="snap-head">
+      <span class="snap-label">QA SNAPSHOT</span>
+      <span class="snap-status">AVAILABLE FOR ROLES</span>
+    </div>
+    <div class="snap-skills">
+      <div class="snap-row"><span class="snap-name">Manual Testing</span><div class="snap-track"><div class="snap-fill" data-w="95"></div></div><span class="snap-pct">95%</span></div>
+      <div class="snap-row"><span class="snap-name">API Testing · Postman</span><div class="snap-track"><div class="snap-fill" data-w="88"></div></div><span class="snap-pct">88%</span></div>
+      <div class="snap-row"><span class="snap-name">Playwright</span><div class="snap-track"><div class="snap-fill" data-w="85"></div></div><span class="snap-pct">85%</span></div>
+      <div class="snap-row"><span class="snap-name">FireFlink</span><div class="snap-track"><div class="snap-fill" data-w="82"></div></div><span class="snap-pct">82%</span></div>
+      <div class="snap-row"><span class="snap-name">CI · GitHub Actions</span><div class="snap-track"><div class="snap-fill" data-w="76"></div></div><span class="snap-pct">76%</span></div>
+    </div>
+    <div class="snap-chips">
+      <div class="snap-chips-lbl">KEY TOOLS</div>
+      <div class="chips">
+        <span class="chip a">Playwright</span><span class="chip a">Postman</span><span class="chip a">Newman</span>
+        <span class="chip">ClickUp</span><span class="chip">GitHub Actions</span><span class="chip">Allure</span><span class="chip">TypeScript</span>
+      </div>
+    </div>
+    <div class="snap-stats">
+      <div class="snap-stat"><div class="s-val" data-count="3">3+</div><div class="s-lbl">YRS QA</div></div>
+      <div class="snap-stat"><div class="s-val" data-count="5">5</div><div class="s-lbl">COMPANIES</div></div>
+      <div class="snap-stat"><div class="s-val" data-count="2">2</div><div class="s-lbl">AI PRODUCTS</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="sec" id="skills">
+  <div class="sec-hd gr"><span class="sec-num">01</span><h2 class="sec-title">Core Skills</h2><div class="sec-rule"></div></div>
+  <div class="skills-grid">
+    <div class="sk gr" style="--c:var(--acc)"><div class="sk-bar"></div>
+      <div class="sk-ico">🧪</div><div class="sk-name">Manual Testing</div>
+      <div class="sk-desc">Functional, regression, integration, smoke, sanity, UAT, compatibility and cross-browser testing across web, mobile and desktop. Expert in AI, clinical and healthcare platforms where every defect carries real-world consequences.</div>
+      <div class="tags"><span class="tag hi">Functional</span><span class="tag hi">Regression</span><span class="tag">Smoke / Sanity</span><span class="tag">UAT</span><span class="tag">Cross-Browser</span><span class="tag">GUI</span><span class="tag">Mobile</span></div>
+    </div>
+    <div class="sk gr" style="--c:var(--blue)"><div class="sk-bar"></div>
+      <div class="sk-ico">⚡</div><div class="sk-name">Test Automation</div>
+      <div class="sk-desc">End-to-end automation with Playwright and FireFlink. CI/CD-integrated with GitHub Actions, scalable script development and continuous optimisation to slash manual effort across every release cycle.</div>
+      <div class="tags"><span class="tag hi">Playwright</span><span class="tag hi">FireFlink</span><span class="tag">TypeScript</span><span class="tag">CI/CD</span><span class="tag">GitHub Actions</span><span class="tag">Allure</span></div>
+    </div>
+    <div class="sk gr" style="--c:var(--amber)"><div class="sk-bar"></div>
+      <div class="sk-ico">🔌</div><div class="sk-name">API Testing</div>
+      <div class="sk-desc">Deep REST API validation with Postman across AI inference, clinical and enterprise endpoints. Schema and contract testing, auth flows, and full negative-path coverage — automated via Newman in CI.</div>
+      <div class="tags"><span class="tag hi">Postman</span><span class="tag">Newman</span><span class="tag">REST APIs</span><span class="tag">JSON Schema</span><span class="tag">OAuth2</span><span class="tag">HIPAA</span></div>
+    </div>
+    <div class="sk gr" style="--c:var(--rose)"><div class="sk-bar"></div>
+      <div class="sk-ico">👥</div><div class="sk-name">QA Leadership</div>
+      <div class="sk-desc">Lead and mentor QA engineers, define testing standards, own defect lifecycle, and drive sprint alignment with devs, product, and clinical stakeholders — tracked in ClickUp.</div>
+      <div class="tags"><span class="tag">Team Leadership</span><span class="tag">Defect Tracking</span><span class="tag">Agile / Scrum</span><span class="tag hi">ClickUp</span><span class="tag">Reporting</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="sec" id="projects" style="padding-top:0">
+  <div class="sec-hd gr"><span class="sec-num">02</span><h2 class="sec-title">QA Projects</h2><div class="sec-rule"></div></div>
+  <div class="proj-list">
+
+    <div class="proj gr" style="--c:var(--acc)">
+      <div class="proj-body">
+        <div class="pbadges"><span class="pbadge pa">PLAYWRIGHT</span><span class="pbadge pa">VOICE AI</span></div>
+        <div class="proj-title">Voice AI Pipeline — E2E Automation Suite</div>
+        <div class="proj-co">@ Shunya Labs · Jan 2026–Present</div>
+        <div class="proj-desc">Built end-to-end Playwright automation for real-time speech recognition APIs and voice agent interfaces. Covers multilingual audio input, speaker diarization accuracy, and latency SLA thresholds. Integrated with GitHub Actions — Allure dashboards on every release.</div>
+        <div class="proj-tags"><span class="ptag hi">Playwright</span><span class="ptag">TypeScript</span><span class="ptag">GitHub Actions</span><span class="ptag">ASR Testing</span><span class="ptag">Allure</span><span class="ptag">ClickUp</span></div>
+      </div>
+      <div class="proj-stat"><div class="stat-num">120+</div><div class="stat-desc">AUTOMATED SCENARIOS</div></div>
+    </div>
+
+    <div class="proj gr" style="--c:var(--violet)">
+      <div class="proj-body">
+        <div class="pbadges"><span class="pbadge pd">SALES PLATFORM</span><span class="pbadge pa">WEB APP</span><span class="pbadge pb">STAGE ENV</span></div>
+        <div class="proj-title">GoMotto — Sales & CSR Management Platform</div>
+        <div class="proj-co">@ Shunya Labs · <a href="https://stage.app.gomotto.com/" target="_blank" rel="noopener">stage.app.gomotto.com ↗</a></div>
+        <div class="proj-desc">QA ownership of GoMotto on staging. Covered functional testing of auth flows, role-based access, CRM modules, and CSR workflows. Full regression cycles per sprint tracked in ClickUp, validating stability before every production push.</div>
+        <div class="proj-tags"><span class="ptag hi">Functional</span><span class="ptag hi">Regression</span><span class="ptag">Role-Based Access</span><span class="ptag">CRM Testing</span><span class="ptag">Smoke</span><span class="ptag">ClickUp</span></div>
+      </div>
+      <div class="proj-stat"><div class="stat-num">100%</div><div class="stat-desc">STAGE COVERAGE</div></div>
+    </div>
+
+    <div class="proj gr" style="--c:var(--blue)">
+      <div class="proj-body">
+        <div class="pbadges"><span class="pbadge pa">CLINICAL AI</span><span class="pbadge pc">HEALTHCARE</span><span class="pbadge pb">WEB + APP</span></div>
+        <div class="proj-title">AskSam — AI-Powered Clinical Co-Pilot</div>
+        <div class="proj-co">@ United We Care · <a href="https://asksam.com.au/" target="_blank" rel="noopener">asksam.com.au ↗</a></div>
+        <div class="proj-desc">Tested AskSam — a trusted AI clinical assistant used by 2M+ users globally — connecting clinicians and patients through AI-powered documentation, communication and engagement. Functional, regression, UAT and API testing across web and mobile.</div>
+        <div class="proj-tags"><span class="ptag hi">Web Testing</span><span class="ptag hi">Mobile Testing</span><span class="ptag">UAT</span><span class="ptag">API Testing</span><span class="ptag">Clinical Workflows</span><span class="ptag">ClickUp</span></div>
+      </div>
+      <div class="proj-stat"><div class="stat-num">2M+</div><div class="stat-desc">PLATFORM USERS</div></div>
+    </div>
+
+    <div class="proj gr" style="--c:var(--amber)">
+      <div class="proj-body">
+        <div class="pbadges"><span class="pbadge pa">FIREFLINK</span><span class="pbadge pe">AI · WELLNESS</span></div>
+        <div class="proj-title">Stella AI — Automated Regression Suite</div>
+        <div class="proj-co">@ United We Care · Jun 2023–Dec 2025</div>
+        <div class="proj-desc">Developed and owned FireFlink automation for Stella AI mental wellness chatbot, therapy booking, and content recommendation flows. Optimised CI/CD integration cutting regression cycle by 50%+. Scaled coverage across web and mobile.</div>
+        <div class="proj-tags"><span class="ptag hi">FireFlink</span><span class="ptag">Regression</span><span class="ptag">CI/CD</span><span class="ptag">Web & Mobile</span><span class="ptag">ClickUp</span></div>
+      </div>
+      <div class="proj-stat"><div class="stat-num">50%</div><div class="stat-desc">REGRESSION CYCLE CUT</div></div>
+    </div>
+
+    <div class="proj gr" style="--c:var(--amber)">
+      <div class="proj-body">
+        <div class="pbadges"><span class="pbadge pc">API</span><span class="pbadge pa">POSTMAN</span></div>
+        <div class="proj-title">Stella API Suite — Contract Testing</div>
+        <div class="proj-co">@ United We Care · Jun 2023–Dec 2025</div>
+        <div class="proj-desc">Postman collections for UWC's wellness and AI inference APIs — auth, sessions, therapist booking, and content endpoints. Newman-automated in CI with JSON schema validation and full negative-path coverage.</div>
+        <div class="proj-tags"><span class="ptag hi">Postman</span><span class="ptag">Newman</span><span class="ptag">REST</span><span class="ptag">JSON Schema</span><span class="ptag">Healthcare APIs</span></div>
+      </div>
+      <div class="proj-stat"><div class="stat-num">200+</div><div class="stat-desc">API SCENARIOS</div></div>
+    </div>
+
+    <div class="proj gr" style="--c:var(--mute)">
+      <div class="proj-body">
+        <div class="pbadges"><span class="pbadge pb">MANUAL</span><span class="pbadge pd">MULTI-PLATFORM</span></div>
+        <div class="proj-title">Enterprise Web & App Testing</div>
+        <div class="proj-co">@ Confidential · Mar 2022–Mar 2023</div>
+        <div class="proj-desc">Manual QA across desktop, browser-based, web and mobile apps. GUI, functional, regression, sanity, smoke, compatibility, integration and cross-browser execution. Full defect lifecycle tracked end-to-end.</div>
+        <div class="proj-tags"><span class="ptag hi">Functional</span><span class="ptag">Regression</span><span class="ptag">Cross-Browser</span><span class="ptag">Mobile</span><span class="ptag">Desktop</span></div>
+      </div>
+      <div class="proj-stat"><div class="stat-num">8</div><div class="stat-desc">TESTING TYPES</div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section class="sec" id="experience" style="padding-top:0">
+  <div class="sec-hd gr"><span class="sec-num">03</span><h2 class="sec-title">Experience</h2><div class="sec-rule"></div></div>
+  <div class="tl">
+    <div class="tl-item gr">
+      <div class="tl-dot"></div>
+      <div class="tl-meta"><span class="tl-date">JAN 2026 – PRESENT</span><span class="tl-ten">3 months · Current</span></div>
+      <div class="tl-role">QA Engineer</div>
+      <div class="tl-co">Shunya Labs<span class="tl-tag">Voice AI</span><span class="tl-tag">Privacy-first ASR</span><span class="tl-tag">Gurugram</span></div>
+      <ul class="tl-pts">
+        <li>Own end-to-end QA for real-time voice AI, ASR products, and GoMotto platform</li>
+        <li>Build and maintain Playwright automation suite for voice agent UI, APIs, and multilingual audio pipelines</li>
+        <li>Validate HIPAA compliance in healthcare API responses and on-premise deployments</li>
+        <li>Sprint-level API regression with Postman/Newman, all tasks tracked in ClickUp</li>
+      </ul>
+    </div>
+    <div class="tl-item gr">
+      <div class="tl-dot"></div>
+      <div class="tl-meta"><span class="tl-date">JUN 2023 – DEC 2025</span><span class="tl-ten">2 yrs 7 mos</span></div>
+      <div class="tl-role">QA Engineer</div>
+      <div class="tl-co">United We Care<span class="tl-tag">Mental Wellness SuperApp</span><span class="tl-tag">AI · Healthcare</span><span class="tl-tag">Gurugram</span></div>
+      <ul class="tl-pts">
+        <li>Led AI product testing for Stella and AskSam — web and mobile platforms used by 2M+ users</li>
+        <li>Wrote, reviewed and executed test cases for functional, integration, regression and performance testing</li>
+        <li>Automated with FireFlink, cutting regression cycle time by 50%+ in CI/CD pipelines</li>
+        <li>Mentored QA engineers; managed daily operations and sprint board in ClickUp</li>
+        <li>Coordinated UAT with clinical stakeholders and maintained transparent defect reporting</li>
+      </ul>
+    </div>
+    <div class="tl-item gr">
+      <div class="tl-dot"></div>
+      <div class="tl-meta"><span class="tl-date">MAR 2022 – MAR 2023</span><span class="tl-ten">1 yr 1 mo</span></div>
+      <div class="tl-role">Associate Software Tester</div>
+      <div class="tl-co">Confidential<span class="tl-tag">IT Services</span><span class="tl-tag">Noida</span></div>
+      <ul class="tl-pts">
+        <li>Tested desktop, browser-based, web and mobile apps across GUI, functional, regression, smoke, sanity, compatibility, integration and cross-browser tracks</li>
+        <li>Wrote structured test cases, logged defects and drove full bug lifecycle to resolution</li>
+      </ul>
+    </div>
+    <div class="tl-item gr">
+      <div class="tl-dot"></div>
+      <div class="tl-meta"><span class="tl-date">MAR 2019 – FEB 2020</span><span class="tl-ten">1 yr</span></div>
+      <div class="tl-role">Junior Android Developer / UI Web Developer</div>
+      <div class="tl-co">TRPS IT Solutions Pvt Ltd<span class="tl-tag">Mobile & Web</span><span class="tl-tag">Agra</span></div>
+      <ul class="tl-pts">
+        <li>Shipped 3 Android apps to Google Play — Grossary King, Timecine, Services 4 Home</li>
+        <li>Built PWAs and websites with HTML, CSS, Bootstrap, Angular Material, Node.js; delivered 2× faster</li>
+      </ul>
+    </div>
+    <div class="tl-item gr">
+      <div class="tl-dot"></div>
+      <div class="tl-meta"><span class="tl-date">SEP 2018 – MAR 2019</span><span class="tl-ten">7 mos</span></div>
+      <div class="tl-role">Software Developer</div>
+      <div class="tl-co">Kramtey Consultancy B.V.<span class="tl-tag">Data Mining</span></div>
+      <ul class="tl-pts">
+        <li>Built management interfaces in MS Visual Studio; tested websites and apps pre-deployment</li>
+        <li>Contributed across full SDLC from requirements to production release</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ANDROID -->
+<section class="sec" id="android" style="padding-top:0">
+  <div class="sec-hd gr"><span class="sec-num">04</span><h2 class="sec-title">Android Projects</h2><div class="sec-rule"></div></div>
+  <div class="apps-grid">
+    <div class="app gr"><div class="app-ico">🛒</div><div class="app-name">Grossary King</div><div class="app-desc">E-commerce grocery app — browse and buy daily essentials. Built at TRPS IT Solutions.</div><a class="app-link" href="https://play.google.com/store/apps/details?id=com.trps.grocery.grossaryking" target="_blank" rel="noopener">↗ View on Play Store</a></div>
+    <div class="app gr"><div class="app-ico">💊</div><div class="app-name">Timecine</div><div class="app-desc">Medical store app — users upload prescriptions; pharmacy builds and confirms cart before dispatch.</div><a class="app-link" href="https://play.google.com/store/apps/details?id=com.trps.timecine" target="_blank" rel="noopener">↗ View on Play Store</a></div>
+    <div class="app gr"><div class="app-ico">🏠</div><div class="app-name">Services 4 Home</div><div class="app-desc">On-demand home services — electricity, spa, cleaning, haircut. Similar to Urban Company.</div><a class="app-link" href="https://play.google.com/store/apps/details?id=com.trps.s4h" target="_blank" rel="noopener">↗ View on Play Store</a></div>
+  </div>
+</section>
+
+<!-- CERTS + TOOLS -->
+<section class="sec" style="padding-top:0">
+  <div class="sec-hd gr"><span class="sec-num">05</span><h2 class="sec-title">Certs & Tools</h2><div class="sec-rule"></div></div>
+  <div class="two-col">
+    <div class="cert-list">
+      <div class="cert gr"><div class="cert-ico">🔐</div><div><div class="cert-name">Certified Ethical Hacking</div><div class="cert-sub">CyberCon 2016</div></div></div>
+      <div class="cert gr"><div class="cert-ico">🐘</div><div><div class="cert-name">Big Data Hadoop</div><div class="cert-sub">Data Engineering Certification</div></div></div>
+      <div class="cert gr"><div class="cert-ico">⚡</div><div><div class="cert-name">FireFlink Test Automation</div><div class="cert-sub">Certified User</div></div></div>
+      <div class="cert gr"><div class="cert-ico">🎓</div><div><div class="cert-name">B.E. Computer Science</div><div class="cert-sub">Anand Engineering College · 2015–2018</div></div></div>
+    </div>
+    <div class="gr">
+      <div class="tools-lbl">TOOL STACK</div>
+      <div class="tools-wrap">
+        <span class="tool">Playwright</span><span class="tool">FireFlink</span><span class="tool">Postman</span>
+        <span class="tool">Newman</span><span class="tool">ClickUp</span><span class="tool">GitHub Actions</span>
+        <span class="tool">Allure</span><span class="tool">TypeScript</span><span class="tool">REST APIs</span>
+        <span class="tool">JSON Schema</span><span class="tool">VS Code</span><span class="tool">Git</span>
+        <span class="tool">Android Studio</span><span class="tool">HTML / CSS</span><span class="tool">Angular</span><span class="tool">Node.js</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-sec" id="contact">
+  <div class="contact-box gr">
+    <h2>Let's build <em>quality together.</em></h2>
+    <p>Open to QA Engineer and SDET roles · Gurugram / Delhi · Remote-friendly</p>
+    <div class="contact-links">
+      <a class="c-link" href="mailto:engineeryaminisingh@gmail.com">✉ engineeryaminisingh@gmail.com</a>
+      <a class="c-link" href="https://www.linkedin.com/in/er-yamini-singh/" target="_blank" rel="noopener">💼 linkedin.com/in/er-yamini-singh</a>
+      <a class="c-link" href="https://github.com/yamini-pal-singh" target="_blank" rel="noopener">🐙 github.com/yamini-pal-singh</a>
+    </div>
+  </div>
+</section>
+<div class="footer">© 2025 · YAMINI SINGH · QA ENGINEER · GURUGRAM, INDIA</div>
+
+</div><!-- end #page -->
+
+<!-- CURSOR -->
+<div class="c-outer" id="cOut"></div>
+<div class="c-inner" id="cIn"></div>
+
+<script>
+/* ══ QA CANVAS BACKGROUND ══ */
+(function(){
+  const cv = document.getElementById('qa-bg');
+  const cx = cv.getContext('2d');
+  let W, H;
+  function resize(){ W = cv.width = innerWidth; H = cv.height = innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+
+  const BUG   = ['BUG-1042','BUG-3187','BUG-0091','BUG-2254','BUG-4401','BUG-7823','ERR-500','ERR-404','ERR-422','ERR-403','BUG-0019','BUG-5566'];
+  const STAT  = ['✓ PASSED','✕ FAILED','⚠ SKIPPED','● RUNNING','✓ PASS','✕ FAIL'];
+  const SCOL  = {'✓ PASSED':'0,217,166','✓ PASS':'0,217,166','✕ FAILED':'251,113,133','✕ FAIL':'251,113,133','⚠ SKIPPED':'251,191,36','● RUNNING':'96,165,250'};
+  const BUGS  = ['login_crash','null_pointer','race_condition','memory_leak','off_by_one','broken_pipe','timeout_error','unhandled_exception','assertion_failed','index_out_of_bounds','seg_fault','stack_overflow','data_mismatch','missing_field','bad_request'];
+  const DADD  = ['+ expect(res.status).toBe(200)','+ assert(response.body !== null)','+ cy.get("[data-testid=\'btn\']")','+ test("login flow", async () => {','+ await page.click("#submit")','+ expect(el).toBeVisible()','+ it("should return 200", () => {'];
+  const DREM  = ['- return undefined','- throw new Error("timeout")','- skip("flaky test")','- console.log("debug")','- status: 500','- body: null','- it.skip("broken", () => {'];
+  const ASRT  = ['expect(200).toBe(200)','assert.equal(actual, expected)','cy.contains("Success")','page.waitForSelector()','response.json() !== null','getByRole("button")','toBeTruthy()','toMatchSnapshot()','expect(el).toHaveText()'];
+
+  function rnd(a,b){return a+Math.random()*(b-a)}
+  function pick(a){return a[Math.floor(Math.random()*a.length)]}
+
+  function mkParticle(){
+    const type = pick(['bug','bug','status','status','strike','strike','dadd','dadd','drem','drem','assert','hline']);
+    const x = rnd(0, W), y = rnd(H+20, H+300);
+    const speed = rnd(0.15, 0.5), drift = rnd(-0.12, 0.12), op = rnd(0.055, 0.16);
+    if(type==='bug'){
+      const lbl=pick(BUG), col=pick(['251,113,133','251,191,36','96,165,250']);
+      return {type,x,y,speed,drift,op,lbl,col,w:lbl.length*7.1+18,h:18};
+    }
+    if(type==='status'){
+      const lbl=pick(STAT), col=SCOL[lbl]||'148,163,184';
+      return {type,x,y,speed,drift,op,lbl,col,w:lbl.length*7.3+18,h:18};
+    }
+    if(type==='strike'){
+      const word=pick(BUGS);
+      return {type,x,y,speed,drift,op,word,len:word.length*7.3};
+    }
+    if(type==='dadd') return {type,x,y,speed,drift,op,text:pick(DADD),col:'0,217,166'};
+    if(type==='drem') return {type,x,y,speed,drift,op,text:pick(DREM),col:'251,113,133'};
+    if(type==='assert') return {type,x,y,speed,drift,op:op*.8,text:pick(ASRT)};
+    return {type,x:0,y,speed:speed*.4,drift:0,op:rnd(0.03,0.07),w:rnd(80,240)};
+  }
+
+  const pool=[];
+  for(let i=0;i<60;i++){const p=mkParticle();p.y=rnd(-H,H);pool.push(p);}
+
+  function pill(x,y,w,h,col,text){
+    const r=h/2;
+    cx.beginPath();
+    cx.moveTo(x+r,y); cx.lineTo(x+w-r,y);
+    cx.arcTo(x+w,y,x+w,y+h,r); cx.lineTo(x+w,y+h-r);
+    cx.arcTo(x+w,y+h,x+w-r,y+h,r); cx.lineTo(x+r,y+h);
+    cx.arcTo(x,y+h,x,y+h-r,r); cx.lineTo(x,y+r);
+    cx.arcTo(x,y,x+r,y,r); cx.closePath();
+    cx.fillStyle=`rgba(${col},.07)`; cx.fill();
+    cx.strokeStyle=`rgba(${col},.28)`; cx.lineWidth=.6; cx.stroke();
+    cx.fillStyle=`rgba(${col},1)`;
+    cx.font="500 10px 'DM Mono',monospace";
+    cx.textBaseline='middle'; cx.fillText(text,x+9,y+h/2);
+  }
+
+  function frame(){
+    cx.clearRect(0,0,W,H);
+    for(let i=pool.length-1;i>=0;i--){
+      const p=pool[i]; p.y-=p.speed; p.x+=p.drift;
+      cx.globalAlpha=p.op;
+      if(p.type==='bug')    pill(p.x,p.y,p.w,p.h,p.col,p.lbl);
+      else if(p.type==='status') pill(p.x,p.y,p.w,p.h,p.col,p.lbl);
+      else if(p.type==='strike'){
+        cx.font="400 12px 'DM Mono',monospace";
+        cx.fillStyle='rgba(148,163,184,1)'; cx.textBaseline='middle';
+        cx.fillText(p.word,p.x,p.y);
+        cx.strokeStyle='rgba(251,113,133,.85)'; cx.lineWidth=1;
+        cx.beginPath(); cx.moveTo(p.x,p.y); cx.lineTo(p.x+p.len,p.y); cx.stroke();
+      }
+      else if(p.type==='dadd'||p.type==='drem'){
+        cx.font="400 11px 'DM Mono',monospace";
+        cx.fillStyle=`rgba(${p.col},1)`; cx.textBaseline='middle';
+        cx.fillText(p.text,p.x,p.y);
+      }
+      else if(p.type==='assert'){
+        cx.font="300 11px 'DM Mono',monospace";
+        cx.fillStyle='rgba(226,232,244,.9)'; cx.textBaseline='middle';
+        cx.fillText(p.text,p.x,p.y);
+      }
+      else if(p.type==='hline'){
+        cx.strokeStyle='rgba(148,163,184,1)'; cx.lineWidth=.4;
+        cx.setLineDash([4,7]);
+        cx.beginPath(); cx.moveTo(p.x,p.y); cx.lineTo(p.x+p.w,p.y); cx.stroke();
+        cx.setLineDash([]);
+      }
+      cx.globalAlpha=1;
+      if(p.y<-40) pool[i]=mkParticle();
+    }
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ══ CURSOR ══ */
+const co=document.getElementById('cOut'), ci=document.getElementById('cIn');
+let ox=0,oy=0;
+document.addEventListener('mousemove',e=>{
+  ci.style.left=e.clientX+'px'; ci.style.top=e.clientY+'px';
+  ox+=(e.clientX-ox)*.1; oy+=(e.clientY-oy)*.1;
+  co.style.left=ox+'px'; co.style.top=oy+'px';
+});
+(function lag(){
+  requestAnimationFrame(lag);
+})();
+
+/* ══ NAV SCROLL ══ */
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('stuck',scrollY>30));
+
+/* ══ GSAP ══ */
+gsap.registerPlugin(ScrollTrigger);
+gsap.set(['#htag','#hname','#hrole','#hdesc','#hbtns','#snapCard'],{opacity:0,y:20});
+gsap.to('#htag',  {opacity:1,y:0,duration:.65,delay:.2,ease:'power2.out'});
+gsap.to('#hname', {opacity:1,y:0,duration:.65,delay:.35,ease:'power2.out'});
+gsap.to('#hrole', {opacity:1,y:0,duration:.65,delay:.5,ease:'power2.out'});
+gsap.to('#hdesc', {opacity:1,y:0,duration:.65,delay:.65,ease:'power2.out'});
+gsap.to('#hbtns', {opacity:1,y:0,duration:.65,delay:.8,ease:'power2.out'});
+gsap.to('#snapCard',{opacity:1,y:0,duration:.8,delay:.6,ease:'power2.out',
+  onComplete:()=>{document.querySelectorAll('.snap-fill').forEach(f=>{f.style.width=f.getAttribute('data-w')+'%'});}
+});
+
+document.querySelectorAll('.gr').forEach((el,i)=>{
+  gsap.fromTo(el,{opacity:0,y:26},{opacity:1,y:0,duration:.6,ease:'power2.out',
+    delay:(i%4)*.07,
+    scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}
+  });
+});
+</script>
+</body>
+</html>
